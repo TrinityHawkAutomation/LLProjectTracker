@@ -1,4 +1,4 @@
-# TrinityHawk — Client Project Update Site
+# TrinityHawk — Client Project Update Site DS
 
 A lightweight, shareable client project update page. Built with plain HTML/CSS/JS — no build tools, no dependencies.
 
