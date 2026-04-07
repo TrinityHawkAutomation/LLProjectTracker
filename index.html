@@ -106,6 +106,22 @@ body{font-family:var(--f);background:var(--off);color:var(--tp);min-height:100vh
 .ti:hover .dbtn{color:var(--border)}
 .dbtn:hover{color:var(--err)!important}
 .dbtn.h{display:none}
+.tedit-btn{background:none;border:none;cursor:pointer;color:transparent;font-size:13px;padding:2px 5px;border-radius:4px;transition:color .15s;flex-shrink:0;line-height:1;margin-top:2px}
+.ti:hover .tedit-btn{color:var(--tm)}
+.tedit-btn:hover{color:var(--accent)!important}
+.tedit-btn.h{display:none}
+.tpanel{background:var(--off);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-top:6px;display:none;flex-direction:column;gap:8px;font-size:12px}
+.tpanel.open{display:flex}
+.tpanel label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--tm)}
+.tpanel input[type=text],.tpanel input[type=date],.tpanel select,.tpanel textarea{font-family:var(--f);font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;background:#fff;color:var(--tp);outline:none;width:100%}
+.tpanel input:focus,.tpanel select:focus,.tpanel textarea:focus{border-color:var(--navy-light)}
+.tpanel textarea{resize:vertical;min-height:50px;line-height:1.5}
+.tpanel .tp-row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.tpanel .tp-row>div{flex:1;min-width:120px}
+.tpanel .tp-close{align-self:flex-end;background:none;border:none;font-family:var(--f);font-size:12px;color:var(--tm);cursor:pointer;padding:2px 6px}
+.tpanel .tp-close:hover{color:var(--tp)}
+.tdesc{font-size:12px;color:var(--ts);margin-top:2px;font-style:italic}
+.tms-badge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;background:var(--gold-pale);color:var(--gold);border:1px solid #e8c97a}
 
 /* ADD TASK */
 .add-sec{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
@@ -164,6 +180,8 @@ body.adm .ahint{display:none}
 .msdot.active{background:var(--accent)}
 .msdot.upcoming{background:var(--border);border:1.5px solid var(--tm)}
 .msname{font-size:13px;font-weight:500;flex:1;min-width:0}
+.msname-input{font-family:var(--f);font-size:13px;font-weight:500;border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--tp);background:#fff;outline:none;flex:1;min-width:0}
+.msname-input:focus{border-color:var(--navy-light)}
 .mssel{font-family:var(--f);font-size:11px;border:1px solid var(--border);border-radius:5px;padding:2px 4px;background:#fff;color:var(--ts);cursor:pointer;outline:none}
 .ms-bot{display:flex;align-items:center;gap:6px;margin-top:5px;margin-left:18px}
 .msdl{font-size:11px;color:var(--tm)}
@@ -183,7 +201,7 @@ body.adm .ahint{display:none}
 .ftr strong{color:rgba(255,255,255,.75)}
 
 @media print{
-  .hdr,.admin-bar,.toast,.add-sec,.gpanel,.dbtn,.mssel,.msdi,.hbtn{display:none!important}
+  .hdr,.admin-bar,.toast,.add-sec,.gpanel,.dbtn,.tedit-btn,.tpanel,.mssel,.msdi,.msname-input,.hbtn{display:none!important}
   body{background:#fff}
   .body{display:block;padding:0}
   .card{box-shadow:none;border:1px solid #ccc;margin-bottom:1rem;page-break-inside:avoid}
@@ -206,7 +224,7 @@ body.adm .ahint{display:none}
 
 <div class="admin-bar" id="adm-bar">
   ⚙ Admin mode active
-  <span class="admin-note">— add &amp; delete tasks; clients only see tick boxes.</span>
+  <span class="admin-note">— add, edit &amp; delete tasks; edit milestones; clients only see tick boxes.</span>
   <button class="btn bg" style="margin-left:auto;font-size:12px;padding:4px 10px" onclick="toggleAdm()">Exit admin</button>
 </div>
 
@@ -273,7 +291,7 @@ body.adm .ahint{display:none}
         <div class="pl"><span id="ptxt">0 of 0 complete</span><span id="ppct">0%</span></div>
         <ul class="tlist" id="tlist" style="margin-top:1rem"></ul>
         <div class="add-sec">
-          <span class="ahint">Enable admin mode (top right) to add or remove tasks.</span>
+          <span class="ahint">Enable admin mode (top right) to add, edit or remove tasks.</span>
           <div class="add-row">
             <input type="text" class="tni" id="nn" placeholder="Add a task or deliverable...">
             <input type="date" class="di" id="nd">
@@ -414,20 +432,44 @@ function toggleAdm(){
   document.getElementById('adm-bar').classList.toggle('on',adm);
   document.getElementById('adm-btn').classList.toggle('on',adm);
   document.getElementById('adm-btn').textContent=adm?'Exit admin':'Admin mode';
-  renderTasks();toast(adm?'⚙ Admin mode on — add & delete tasks':'Admin mode off')
+  renderTasks();toast(adm?'⚙ Admin mode on — add, edit & delete tasks':'Admin mode off')
 }
 
 function renderTasks(){
   const ul=document.getElementById('tlist');ul.innerHTML='';
   tasks.forEach(t=>{
-    const d2=dc(t.due);const li=document.createElement('li');
+    const d2=dc(t.due);const wrap=document.createElement('div');
+    const li=document.createElement('li');
     li.className='ti'+(t.done?' done':'');
+    const msName=typeof t.msIdx==='number'&&ms[t.msIdx]?ms[t.msIdx].name:'';
     li.innerHTML=`<input type="checkbox" class="tcb" ${t.done?'checked':''} onchange="tick(${t.id},this.checked)">
 <div class="tinfo"><span class="tname">${esc(t.name)}</span>
+${t.desc?`<span class="tdesc">${esc(t.desc)}</span>`:''}
 <div class="tmeta">${t.due?`<span class="tdue ${d2}">📅 ${fd(t.due)}${d2==='overdue'?' · Overdue':d2==='soon'?' · Due soon':''}</span>`:''}
-${t.tag?`<span class="ttag ${esc(t.tag)}">${esc(t.tag)}</span>`:''}</div></div>
+${t.tag?`<span class="ttag ${esc(t.tag)}">${esc(t.tag)}</span>`:''}
+${msName?`<span class="tms-badge">${esc(msName)}</span>`:''}</div></div>
+<button class="tedit-btn${adm?'':' h'}" onclick="tgTaskEdit(${t.id})" title="Edit">✎</button>
 <button class="dbtn${adm?'':' h'}" onclick="delT(${t.id})" title="Remove">&#10005;</button>`;
-    ul.appendChild(li)
+    wrap.appendChild(li);
+    const pan=document.createElement('div');pan.className='tpanel';pan.id='tp'+t.id;
+    const msOpts=ms.map((m2,mi)=>`<option value="${mi}" ${t.msIdx===mi?'selected':''}>${esc(m2.name)}</option>`).join('');
+    pan.innerHTML=`<div class="tp-row"><div><label>Name</label><input type="text" value="${esc(t.name)}" onchange="edT(${t.id},'name',this.value)"></div></div>
+<div class="tp-row"><div><label>Due date</label><input type="date" value="${t.due||''}" onchange="edT(${t.id},'due',this.value)"></div>
+<div><label>Tag</label><select onchange="edT(${t.id},'tag',this.value)">
+<option value="Discovery" ${t.tag==='Discovery'?'selected':''}>Discovery</option>
+<option value="Strategy" ${t.tag==='Strategy'?'selected':''}>Strategy</option>
+<option value="Outbound" ${t.tag==='Outbound'?'selected':''}>Outbound</option>
+<option value="Process" ${t.tag==='Process'?'selected':''}>Process</option>
+<option value="Marketing" ${t.tag==='Marketing'?'selected':''}>Marketing</option>
+<option value="Reporting" ${t.tag==='Reporting'?'selected':''}>Reporting</option>
+<option value="Other" ${t.tag==='Other'?'selected':''}>Other</option>
+</select></div>
+<div><label>Milestone</label><select onchange="edT(${t.id},'msIdx',this.value)">
+<option value="" ${typeof t.msIdx!=='number'?'selected':''}>None</option>${msOpts}
+</select></div></div>
+<div><label>Description</label><textarea onchange="edT(${t.id},'desc',this.value)">${esc(t.desc||'')}</textarea></div>
+<button class="tp-close" onclick="clsTaskEdit(${t.id})">&#10005; Close</button>`;
+    wrap.appendChild(pan);ul.appendChild(wrap)
   });
   stats()
 }
@@ -442,6 +484,25 @@ function addTask(){
 }
 document.getElementById('nn').addEventListener('keydown',e=>{if(e.key==='Enter')addTask()});
 
+function tgTaskEdit(id){
+  if(!adm)return;
+  const p=document.getElementById('tp'+id);if(!p)return;
+  const was=p.classList.contains('open');
+  document.querySelectorAll('.tpanel.open').forEach(x=>x.classList.remove('open'));
+  if(!was)p.classList.add('open')
+}
+function clsTaskEdit(id){const p=document.getElementById('tp'+id);if(p)p.classList.remove('open')}
+function edT(id,field,val){
+  if(!adm)return;
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  if(field==='name'){val=val.trim();if(!val){toast('Name cannot be empty');return}}
+  if(field==='msIdx'){t.msIdx=val===''?undefined:parseInt(val)}
+  else{t[field]=val}
+  save();renderTasks();
+  const p=document.getElementById('tp'+id);if(p)p.classList.add('open');
+  toast('Task updated')
+}
+
 function stats(){
   const tot=tasks.length,dn=tasks.filter(t=>t.done).length,pct=tot?Math.round(dn/tot*100):0;
   document.getElementById('s-tot').textContent=tot;document.getElementById('s-dn').textContent=dn;document.getElementById('s-op').textContent=tot-dn;
@@ -453,7 +514,7 @@ function renderMs(){
   const ul=document.getElementById('mslist');ul.innerHTML='';
   ms.forEach((m2,i)=>{
     const li=document.createElement('li');li.className='msi';
-    li.innerHTML=`<div class="ms-top"><div class="msdot ${m2.status}"></div><span class="msname">${esc(m2.name)}</span>
+    li.innerHTML=`<div class="ms-top"><div class="msdot ${m2.status}"></div><input type="text" class="msname-input" value="${esc(m2.name)}" onchange="msnm(${i},this.value)" onkeydown="if(event.key==='Enter')this.blur()">
 <select class="mssel" onchange="msst(${i},this.value)">
 <option value="done" ${m2.status==='done'?'selected':''}>Done</option>
 <option value="active" ${m2.status==='active'?'selected':''}>Active</option>
@@ -465,6 +526,7 @@ function renderMs(){
 }
 function msdt(i,v){ms[i].date=v;save();toast('Milestone date updated')}
 function msst(i,v){ms[i].status=v;renderMs();save();toast('Milestone updated')}
+function msnm(i,v){v=v.trim();if(!v){toast('Name cannot be empty');renderMs();return}ms[i].name=v;save();toast('Milestone name updated')}
 
 function pd(s){return new Date(s+'T00:00:00')}
 function renderGantt(){
