@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Update — TrinityHawk x LaunchLemonade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1f3c;--navy-mid:#1a3259;--navy-light:#2a4a7f;
+  --accent:#2e6fde;--accent-pale:#e8effc;
+  --gold:#c9993a;--gold-pale:#fdf5e6;
+  --white:#fff;--off:#f7f8fa;--border:#dde2ec;
+  --tp:#0d1f3c;--ts:#4a5568;--tm:#8a96a8;
+  --ok:#1a7a4a;--ok-pale:#e6f5ee;
+  --warn:#b45309;--err:#b91c1c;--err-pale:#fee2e2;
+  --r:8px;--rl:14px;
+  --sh:0 1px 4px rgba(13,31,60,.08),0 4px 16px rgba(13,31,60,.06);
+  --f:'Bricolage Grotesque',sans-serif
+}
+body{font-family:var(--f);background:var(--off);color:var(--tp);min-height:100vh;line-height:1.6}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--gold);gap:1rem}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:32px;height:32px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--navy)}
+.logo-name{font-size:16px;font-weight:600;color:#fff}
+.hdr-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.proj-badge{font-size:13px;color:rgba(255,255,255,.7);white-space:nowrap}
+.proj-badge span{color:#fff;font-weight:600}
+.hbtn{font-family:var(--f);font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.25);background:transparent;color:rgba(255,255,255,.8);cursor:pointer;transition:all .15s;white-space:nowrap}
+.hbtn:hover{background:rgba(255,255,255,.1);color:#fff}
+.hbtn.on{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.save-badge{font-size:12px;color:rgba(255,255,255,.5);padding:4px 10px;border:1px solid rgba(255,255,255,.15);border-radius:20px;white-space:nowrap}
+
+/* ADMIN BAR */
+.admin-bar{background:#fffbeb;border-bottom:1px solid #f0d070;padding:7px 2rem;display:none;align-items:center;gap:10px;font-size:13px;color:#92400e;font-weight:600}
+.admin-bar.on{display:flex}
+.admin-note{font-weight:400;color:var(--ts)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--navy-mid) 0%,var(--navy-light) 100%);color:#fff;padding:2.5rem 2rem}
+.hero-in{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;flex-wrap:wrap}
+.hero-left h1{font-size:28px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px}
+.hero-left p{font-size:15px;color:rgba(255,255,255,.7);max-width:500px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem}
+.chip{padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid transparent}
+.chip-g{background:var(--gold);color:var(--navy)}
+.chip-o{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}
+.stats{display:flex;gap:1.5rem;flex-shrink:0}
+.stat{text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:1rem 1.5rem;min-width:90px}
+.stat-n{font-size:28px;font-weight:700;display:block;line-height:1}
+.stat-l{font-size:11px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;display:block}
+
+/* LAYOUT */
+.body{max-width:1100px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start}
+@media(max-width:820px){.body{grid-template-columns:1fr}}
+.main{display:flex;flex-direction:column;gap:1.5rem}
+.side{display:flex;flex-direction:column;gap:1.5rem}
+
+/* CARD */
+.card{background:var(--white);border-radius:var(--rl);border:1px solid var(--border);box-shadow:var(--sh);overflow:hidden}
+.card-hdr{padding:1rem 1.25rem .75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.card-body{padding:1.25rem}
+
+/* COMMENTARY */
+.com-grid{display:flex;flex-direction:column;gap:1rem}
+.com-box{border-radius:var(--r);padding:1rem}
+.com-box.done{background:var(--ok-pale);border:1px solid #a7d7b8}
+.com-box.coming{background:var(--accent-pale);border:1px solid #b3cdf4}
+.com-box h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.com-box.done h3{color:var(--ok)}
+.com-box.coming h3{color:var(--accent)}
+.com-box textarea{font-size:14px;color:var(--ts);line-height:1.65;width:100%;background:transparent;border:none;outline:none;resize:vertical;font-family:var(--f);min-height:80px}
+
+/* TASKS */
+.tlist{list-style:none}
+.ti{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.ti:last-child{border-bottom:none}
+.ti.done .tname{text-decoration:line-through;color:var(--tm)}
+.ti.done .tdue{opacity:.5}
+.tcb{width:20px;height:20px;border:2px solid var(--border);border-radius:5px;flex-shrink:0;cursor:pointer;appearance:none;-webkit-appearance:none;margin-top:2px;transition:all .15s;background:#fff;position:relative}
+.tcb:checked{background:var(--navy);border-color:var(--navy)}
+.tcb:checked::after{content:'';position:absolute;left:4px;top:1px;width:8px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg)}
+.tcb:hover:not(:checked){border-color:var(--navy-light)}
+.tinfo{flex:1;min-width:0}
+.tname{font-size:14px;font-weight:500;color:var(--tp);display:block}
+.tmeta{display:flex;gap:8px;margin-top:3px;flex-wrap:wrap;align-items:center}
+.tdue{font-size:12px;color:var(--tm)}
+.tdue.overdue{color:var(--err);font-weight:600}
+.tdue.soon{color:var(--warn);font-weight:600}
+.ttag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.Discovery{background:#ede9fe;color:#5b21b6}
+.Strategy{background:#fef3c7;color:#92400e}
+.Outbound{background:#dbeafe;color:#1e40af}
+.Process{background:#d1fae5;color:#065f46}
+.Marketing{background:#fce7f3;color:#9d174d}
+.Reporting{background:var(--off);color:var(--tm);border:1px solid var(--border)}
+.Other{background:var(--off);color:var(--tm);border:1px solid var(--border)}
+.dbtn{background:none;border:none;cursor:pointer;color:transparent;font-size:15px;padding:2px 5px;border-radius:4px;transition:color .15s;flex-shrink:0;line-height:1;margin-top:2px}
+.ti:hover .dbtn{color:var(--border)}
+.dbtn:hover{color:var(--err)!important}
+.dbtn.h{display:none}
+
+/* ADD TASK */
+.add-sec{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
+.add-row{display:flex;gap:8px;flex-wrap:wrap}
+.add-row input,.add-row select{font-family:var(--f);font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);outline:none;color:var(--tp);background:#fff}
+.add-row input:focus,.add-row select:focus{border-color:var(--navy-light)}
+.tni{flex:1;min-width:150px}
+.di{width:145px}
+.ts2{width:125px}
+.btn{font-family:var(--f);font-size:13px;font-weight:600;padding:7px 16px;border-radius:var(--r);border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.bn{background:var(--navy);color:#fff}
+.bn:hover{background:var(--navy-light)}
+.bg{background:transparent;border:1px solid var(--border);color:var(--ts)}
+.bg:hover{border-color:var(--navy);color:var(--navy)}
+.ahint{font-size:12px;color:var(--tm)}
+.add-row{display:none}
+body.adm .add-row{display:flex}
+body.adm .ahint{display:none}
+
+/* PROGRESS */
+.pw{background:var(--off);border-radius:4px;height:6px;overflow:hidden;margin-top:8px}
+.pf{height:100%;background:var(--navy);border-radius:4px;transition:width .4s ease}
+.pl{font-size:12px;color:var(--ts);margin-top:4px;display:flex;justify-content:space-between}
+
+/* GANTT */
+.grow{display:flex;align-items:center;margin-bottom:8px}
+.glbl{min-width:130px;max-width:130px;padding-right:10px;font-size:12px;font-weight:500;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gbar-col{flex:1;position:relative;height:18px;background:var(--off);border-radius:4px;overflow:visible}
+.gbar{position:absolute;top:0;height:100%;border-radius:4px;cursor:pointer;transition:filter .15s}
+.gbar:hover{filter:brightness(1.1)}
+.gbar.done{background:var(--navy)}
+.gbar.active{background:var(--accent)}
+.gbar.upcoming{background:#b0c4de;opacity:.7}
+.gbar.blocked{background:var(--err)}
+.gtoday{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--gold);border-radius:1px;pointer-events:none;z-index:2}
+.gpanel{background:var(--off);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-top:4px;margin-left:130px;display:none;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px}
+.gpanel.open{display:flex}
+.gpanel label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--tm)}
+.gpanel input[type=date],.gpanel select{font-family:var(--f);font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;background:#fff;color:var(--tp);outline:none}
+.gcls{margin-left:auto;background:none;border:none;font-family:var(--f);font-size:12px;color:var(--tm);cursor:pointer}
+.gcls:hover{color:var(--tp)}
+
+/* SIDEBAR */
+.kc{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.kc:last-child{border-bottom:none}
+.av{width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.av.cl{background:var(--accent)}
+.cn{font-size:14px;font-weight:600}
+.cr{font-size:12px;color:var(--tm)}
+.mslist{list-style:none}
+.msi{padding:8px 0;border-bottom:1px solid var(--border)}
+.msi:last-child{border-bottom:none}
+.ms-top{display:flex;align-items:center;gap:8px}
+.msdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.msdot.done{background:var(--navy)}
+.msdot.active{background:var(--accent)}
+.msdot.upcoming{background:var(--border);border:1.5px solid var(--tm)}
+.msname{font-size:13px;font-weight:500;flex:1;min-width:0}
+.mssel{font-family:var(--f);font-size:11px;border:1px solid var(--border);border-radius:5px;padding:2px 4px;background:#fff;color:var(--ts);cursor:pointer;outline:none}
+.ms-bot{display:flex;align-items:center;gap:6px;margin-top:5px;margin-left:18px}
+.msdl{font-size:11px;color:var(--tm)}
+.msdi{font-family:var(--f);font-size:11px;border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--ts);background:#fff;outline:none}
+.msdi:focus{border-color:var(--navy-light)}
+
+/* UTILS */
+.epill{background:var(--gold-pale);color:var(--gold);border:1px solid #e8c97a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.hint{font-size:11px;color:var(--tm)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;border-left:4px solid var(--gold);box-shadow:0 4px 20px rgba(0,0,0,.22);transform:translateY(80px);opacity:0;transition:all .28s ease;z-index:9999;pointer-events:none}
+.toast.on{transform:translateY(0);opacity:1}
+
+/* FOOTER */
+.ftr{background:var(--navy);color:rgba(255,255,255,.4);text-align:center;font-size:12px;padding:1.25rem;margin-top:3rem;border-top:3px solid var(--gold)}
+.ftr strong{color:rgba(255,255,255,.75)}
+
+@media print{
+  .hdr,.admin-bar,.toast,.add-sec,.gpanel,.dbtn,.mssel,.msdi,.hbtn{display:none!important}
+  body{background:#fff}
+  .body{display:block;padding:0}
+  .card{box-shadow:none;border:1px solid #ccc;margin-bottom:1rem;page-break-inside:avoid}
+  .hero,.gbar{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .tcb{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo"><div class="logo-mark">TH</div><span class="logo-name">TrinityHawk</span></div>
+  <div class="hdr-r">
+    <div class="proj-badge">Project: <span>LaunchLemonade</span></div>
+    <button class="hbtn" id="adm-btn" onclick="toggleAdm()">Admin mode</button>
+    <button class="hbtn" onclick="window.print()">Print / PDF</button>
+    <div class="save-badge" id="save-badge">Not yet saved</div>
+  </div>
+</header>
+
+<div class="admin-bar" id="adm-bar">
+  ⚙ Admin mode active
+  <span class="admin-note">— add &amp; delete tasks; clients only see tick boxes.</span>
+  <button class="btn bg" style="margin-left:auto;font-size:12px;padding:4px 10px" onclick="toggleAdm()">Exit admin</button>
+</div>
+
+<div class="hero">
+  <div class="hero-in">
+    <div class="hero-left">
+      <h1>LaunchLemonade — GTM &amp; Revenue Growth</h1>
+      <p>Fractional sales leadership, go-to-market strategy, and outbound campaign build for LaunchLemonade's AI tools platform.</p>
+      <div class="chips">
+        <span class="chip chip-g">In Progress</span>
+        <span class="chip chip-o">Q2 2026</span>
+        <span class="chip chip-o" id="pct-chip">0% complete</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="stat-n" id="s-tot">0</span><span class="stat-l">Tasks</span></div>
+      <div class="stat"><span class="stat-n" id="s-dn">0</span><span class="stat-l">Done</span></div>
+      <div class="stat"><span class="stat-n" id="s-op">0</span><span class="stat-l">Open</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="body">
+  <div class="main">
+
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="dot"></span>Project Commentary</div>
+        <span class="epill">Editable</span>
+      </div>
+      <div class="card-body">
+        <div class="com-grid">
+          <div class="com-box done">
+            <h3>&#10003; What's been done</h3>
+            <textarea id="done-t" rows="4" placeholder="Summarise completed work..."></textarea>
+          </div>
+          <div class="com-box coming">
+            <h3>&#8594; What's coming up</h3>
+            <textarea id="coming-t" rows="4" placeholder="Outline next steps..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="dot"></span>Project Timeline</div>
+        <span class="hint">Click any bar to edit dates &amp; status</span>
+      </div>
+      <div class="card-body" style="padding:1rem 1rem 1.25rem">
+        <div id="gantt"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="dot"></span>Tasks &amp; Deliverables</div>
+        <span class="epill">Clients can tick tasks</span>
+      </div>
+      <div class="card-body" style="padding:1rem 1.25rem">
+        <div class="pw"><div class="pf" id="pbar" style="width:0%"></div></div>
+        <div class="pl"><span id="ptxt">0 of 0 complete</span><span id="ppct">0%</span></div>
+        <ul class="tlist" id="tlist" style="margin-top:1rem"></ul>
+        <div class="add-sec">
+          <span class="ahint">Enable admin mode (top right) to add or remove tasks.</span>
+          <div class="add-row">
+            <input type="text" class="tni" id="nn" placeholder="Add a task or deliverable...">
+            <input type="date" class="di" id="nd">
+            <select class="ts2" id="ntag">
+              <option value="Discovery">Discovery</option>
+              <option value="Strategy">Strategy</option>
+              <option value="Outbound" selected>Outbound</option>
+              <option value="Process">Process</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Reporting">Reporting</option>
+              <option value="Other">Other</option>
+            </select>
+            <button class="btn bn" onclick="addTask()">+ Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="side">
+
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><span class="dot"></span>Key Contacts</div></div>
+      <div class="card-body" style="padding:.75rem 1.25rem">
+        <div class="kc"><div class="av">DS</div><div><div class="cn">Dale Shephard</div><div class="cr">TrinityHawk — Fractional CRO</div></div></div>
+        <div class="kc"><div class="av">KB</div><div><div class="cn">Kiera Bridgeman</div><div class="cr">TrinityHawk — Account Executive</div></div></div>
+        <div class="kc"><div class="av cl">CS</div><div><div class="cn">Cien Solon (Shen)</div><div class="cr">LaunchLemonade — Founder &amp; CEO</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="dot"></span>Milestones</div>
+        <span class="epill">Editable</span>
+      </div>
+      <div class="card-body" style="padding:.75rem 1.25rem">
+        <ul class="mslist" id="mslist"></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title"><span class="dot"></span>Notes &amp; Links</div>
+        <span class="epill">Editable</span>
+      </div>
+      <div class="card-body">
+        <textarea id="notes-t" rows="7" placeholder="Notes, links, channels..." style="font-size:13px;line-height:1.75;width:100%;background:transparent;border:none;outline:none;resize:vertical;font-family:var(--f);color:var(--ts)"></textarea>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="ftr">Prepared by <strong>TrinityHawk</strong> &middot; Confidential client update &middot; <span id="fdate"></span></footer>
+
+<script>
+const T=new Date();T.setHours(0,0,0,0);
+const K='th_ll_v3';let nid=300;
+function ds(d){return d.toISOString().split('T')[0]}
+function ad(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function fd(s){if(!s)return'';return new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function dc(s){if(!s)return'';const d=(new Date(s+'T00:00:00')-T)/86400000;return d<0?'overdue':d<=5?'soon':''}
+function dbnc(f,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}}
+
+const DT=[
+  {id:1,name:'Initial discovery & stakeholder sessions with Shen',due:ds(ad(T,-28)),tag:'Discovery',done:true},
+  {id:2,name:'ICP definition and target account research',due:ds(ad(T,-20)),tag:'Strategy',done:true},
+  {id:3,name:'Lemlist campaign build & multi-channel sequence',due:ds(ad(T,-12)),tag:'Outbound',done:true},
+  {id:4,name:'Weekly sales sync cadence established',due:ds(ad(T,-8)),tag:'Process',done:true},
+  {id:5,name:'Compliance persona campaign — engage & qualify lead',due:ds(ad(T,3)),tag:'Outbound',done:false},
+  {id:6,name:'Event follow-up: convert attendee list to outreach',due:ds(ad(T,7)),tag:'Outbound',done:false},
+  {id:7,name:'Value proposition and messaging refinement',due:ds(ad(T,12)),tag:'Strategy',done:false},
+  {id:8,name:'Package pricing framework — workshops & retainers',due:ds(ad(T,18)),tag:'Strategy',done:false},
+  {id:9,name:'LinkedIn content strategy handover',due:ds(ad(T,22)),tag:'Marketing',done:false},
+  {id:10,name:'Monthly performance review & pipeline report',due:ds(ad(T,30)),tag:'Reporting',done:false}
+];
+const DM=[
+  {name:'Discovery & ICP definition',date:ds(ad(T,-20)),status:'done'},
+  {name:'Outbound campaigns live',date:ds(ad(T,-10)),status:'done'},
+  {name:'Messaging & packaging complete',date:ds(ad(T,14)),status:'active'},
+  {name:'First qualified pipeline bookings',date:ds(ad(T,25)),status:'upcoming'},
+  {name:'Monthly review & plan',date:ds(ad(T,32)),status:'upcoming'}
+];
+const DG=[
+  {name:'Discovery & ICP',start:ds(ad(T,-30)),end:ds(ad(T,-16)),status:'done'},
+  {name:'Outbound Build',start:ds(ad(T,-18)),end:ds(ad(T,-6)),status:'done'},
+  {name:'Campaigns Live',start:ds(ad(T,-8)),end:ds(ad(T,10)),status:'active'},
+  {name:'Messaging & Pricing',start:ds(ad(T,5)),end:ds(ad(T,20)),status:'upcoming'},
+  {name:'Pipeline Building',start:ds(ad(T,18)),end:ds(ad(T,32)),status:'upcoming'},
+  {name:'Review & Optimise',start:ds(ad(T,28)),end:ds(ad(T,42)),status:'upcoming'}
+];
+const DTX={
+  done:"Completed discovery sessions and defined LaunchLemonade's ICP — targeting B2B services firms with budget and a real pain around sales execution. Built and launched a multi-channel Lemlist outbound sequence (email, LinkedIn, phone). Weekly sales sync cadence established. Compliance persona identified as a strong early lead.",
+  coming:"Progressing the compliance lead toward a booked call. Refining the value proposition and packaging — moving toward a clearer workshop + retainer offering at higher price points (\u00a35\u20137k). Supporting the LinkedIn content strategy handover. Building out event follow-up outreach from recent attendee lists.",
+  notes:"🍋 LaunchLemonade platform — launchlemonade.app\n📄 CSA / Proposal — add link here\n📹 Weekly Sales Sync recordings — add link here\n💬 Weekly sync: Mondays 3:30pm GMT"
+};
+
+let tasks=[],ms=[],gp=[],adm=false;
+
+function save(){
+  const d={tasks,ms,gp,nid,tx:{done:document.getElementById('done-t').value,coming:document.getElementById('coming-t').value,notes:document.getElementById('notes-t').value},at:new Date().toISOString()};
+  try{localStorage.setItem(K,JSON.stringify(d))}catch(e){}
+  setBadge(d.at)
+}
+function setBadge(iso){
+  const el=document.getElementById('save-badge');
+  if(!iso){el.textContent='Not saved';return}
+  const m=Math.round((Date.now()-new Date(iso))/60000);
+  if(m<1)el.textContent='Saved just now';
+  else if(m<60)el.textContent='Saved '+m+'m ago';
+  else el.textContent='Saved '+new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+}
+function init(){
+  try{
+    const raw=localStorage.getItem(K);if(!raw)throw 0;
+    const d=JSON.parse(raw);
+    tasks=d.tasks||JSON.parse(JSON.stringify(DT));
+    ms=d.ms||JSON.parse(JSON.stringify(DM));
+    gp=d.gp||JSON.parse(JSON.stringify(DG));
+    nid=d.nid||300;
+    if(d.tx){document.getElementById('done-t').value=d.tx.done??DTX.done;document.getElementById('coming-t').value=d.tx.coming??DTX.coming;document.getElementById('notes-t').value=d.tx.notes??DTX.notes}
+    setBadge(d.at)
+  }catch(e){
+    tasks=JSON.parse(JSON.stringify(DT));ms=JSON.parse(JSON.stringify(DM));gp=JSON.parse(JSON.stringify(DG));
+    document.getElementById('done-t').value=DTX.done;document.getElementById('coming-t').value=DTX.coming;document.getElementById('notes-t').value=DTX.notes
+  }
+}
+
+const autoS=dbnc(save,700);
+['done-t','coming-t','notes-t'].forEach(id=>document.getElementById(id).addEventListener('input',autoS));
+
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2600)}
+
+function toggleAdm(){
+  adm=!adm;document.body.classList.toggle('adm',adm);
+  document.getElementById('adm-bar').classList.toggle('on',adm);
+  document.getElementById('adm-btn').classList.toggle('on',adm);
+  document.getElementById('adm-btn').textContent=adm?'Exit admin':'Admin mode';
+  renderTasks();toast(adm?'⚙ Admin mode on — add & delete tasks':'Admin mode off')
+}
+
+function renderTasks(){
+  const ul=document.getElementById('tlist');ul.innerHTML='';
+  tasks.forEach(t=>{
+    const d2=dc(t.due);const li=document.createElement('li');
+    li.className='ti'+(t.done?' done':'');
+    li.innerHTML=`<input type="checkbox" class="tcb" ${t.done?'checked':''} onchange="tick(${t.id},this.checked)">
+<div class="tinfo"><span class="tname">${esc(t.name)}</span>
+<div class="tmeta">${t.due?`<span class="tdue ${d2}">📅 ${fd(t.due)}${d2==='overdue'?' · Overdue':d2==='soon'?' · Due soon':''}</span>`:''}
+${t.tag?`<span class="ttag ${esc(t.tag)}">${esc(t.tag)}</span>`:''}</div></div>
+<button class="dbtn${adm?'':' h'}" onclick="delT(${t.id})" title="Remove">&#10005;</button>`;
+    ul.appendChild(li)
+  });
+  stats()
+}
+function tick(id,c){const t=tasks.find(x=>x.id===id);if(!t)return;t.done=c;renderTasks();save();toast(c?'✓ Marked complete':'Task reopened')}
+function delT(id){if(!adm)return;tasks=tasks.filter(x=>x.id!==id);renderTasks();save();toast('Task removed')}
+function addTask(){
+  if(!adm)return;
+  const n=document.getElementById('nn').value.trim();if(!n){toast('Enter a task name');return}
+  tasks.push({id:nid++,name:n,due:document.getElementById('nd').value,tag:document.getElementById('ntag').value,done:false});
+  document.getElementById('nn').value='';document.getElementById('nd').value='';
+  renderTasks();save();toast('Task added')
+}
+document.getElementById('nn').addEventListener('keydown',e=>{if(e.key==='Enter')addTask()});
+
+function stats(){
+  const tot=tasks.length,dn=tasks.filter(t=>t.done).length,pct=tot?Math.round(dn/tot*100):0;
+  document.getElementById('s-tot').textContent=tot;document.getElementById('s-dn').textContent=dn;document.getElementById('s-op').textContent=tot-dn;
+  document.getElementById('pbar').style.width=pct+'%';document.getElementById('ptxt').textContent=dn+' of '+tot+' complete';
+  document.getElementById('ppct').textContent=pct+'%';document.getElementById('pct-chip').textContent=pct+'% complete'
+}
+
+function renderMs(){
+  const ul=document.getElementById('mslist');ul.innerHTML='';
+  ms.forEach((m2,i)=>{
+    const li=document.createElement('li');li.className='msi';
+    li.innerHTML=`<div class="ms-top"><div class="msdot ${m2.status}"></div><span class="msname">${esc(m2.name)}</span>
+<select class="mssel" onchange="msst(${i},this.value)">
+<option value="done" ${m2.status==='done'?'selected':''}>Done</option>
+<option value="active" ${m2.status==='active'?'selected':''}>Active</option>
+<option value="upcoming" ${m2.status==='upcoming'?'selected':''}>Upcoming</option>
+</select></div>
+<div class="ms-bot"><span class="msdl">Date:</span><input type="date" class="msdi" value="${m2.date}" onchange="msdt(${i},this.value)"></div>`;
+    ul.appendChild(li)
+  })
+}
+function msdt(i,v){ms[i].date=v;save();toast('Milestone date updated')}
+function msst(i,v){ms[i].status=v;renderMs();save();toast('Milestone updated')}
+
+function pd(s){return new Date(s+'T00:00:00')}
+function renderGantt(){
+  const c=document.getElementById('gantt');c.innerHTML='';
+  const all=gp.flatMap(p=>[pd(p.start),pd(p.end)]);
+  const mn=new Date(Math.min(...all)),mx=new Date(Math.max(...all));
+  const span=Math.max(mx-mn,864e5);
+  function pct(s){return Math.max(0,Math.min(100,(pd(s)-mn)/span*100))}
+
+  const mr=document.createElement('div');mr.style.cssText='display:flex;margin-left:130px;margin-bottom:5px';
+  let mc=new Date(mn);mc.setDate(1);
+  while(mc<=mx){
+    const nx=new Date(mc.getFullYear(),mc.getMonth()+1,1);
+    const ms2=new Date(Math.max(mc,mn)),me=new Date(Math.min(nx-864e5,mx));
+    const w=Math.max(0,pct(ds(me))-pct(ds(ms2))+100/span*864e5);
+    const lb=document.createElement('div');
+    lb.style.cssText=`flex:0 0 ${w}%;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);text-align:center;overflow:hidden;padding-bottom:3px`;
+    lb.textContent=mc.toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
+    mr.appendChild(lb);mc=nx
+  }
+  c.appendChild(mr);
+
+  const tp=pct(ds(T));
+  gp.forEach((ph,i)=>{
+    const wrap=document.createElement('div');
+    const row=document.createElement('div');row.className='grow';
+    const lbl=document.createElement('div');lbl.className='glbl';lbl.title=ph.name;lbl.textContent=ph.name;
+    const bc=document.createElement('div');bc.className='gbar-col';
+    const tl=document.createElement('div');tl.className='gtoday';tl.style.left=tp+'%';bc.appendChild(tl);
+    const l=pct(ph.start),r=pct(ph.end);
+    const bar=document.createElement('div');bar.className='gbar '+ph.status;
+    bar.style.left=l+'%';bar.style.width=Math.max(r-l,1)+'%';
+    bar.title=ph.name+': '+fd(ph.start)+' - '+fd(ph.end);
+    bar.onclick=()=>tgPanel(i,wrap);
+    bc.appendChild(bar);row.appendChild(lbl);row.appendChild(bc);
+
+    const pan=document.createElement('div');pan.className='gpanel';pan.id='gp'+i;
+    pan.innerHTML=`<label>Start</label><input type="date" value="${ph.start}" onchange="gdt(${i},'start',this.value)">
+<label>End</label><input type="date" value="${ph.end}" onchange="gdt(${i},'end',this.value)">
+<label>Status</label><select onchange="gst(${i},this.value)">
+<option value="done" ${ph.status==='done'?'selected':''}>Done</option>
+<option value="active" ${ph.status==='active'?'selected':''}>Active</option>
+<option value="upcoming" ${ph.status==='upcoming'?'selected':''}>Upcoming</option>
+<option value="blocked" ${ph.status==='blocked'?'selected':''}>Blocked</option>
+</select><button class="gcls" onclick="clsPanel(${i})">&#10005; Close</button>`;
+
+    wrap.appendChild(row);wrap.appendChild(pan);c.appendChild(wrap)
+  });
+
+  const leg=document.createElement('div');leg.style.cssText='display:flex;gap:14px;margin-top:12px;flex-wrap:wrap';
+  [['var(--navy)','Done'],['var(--accent)','Active'],['#b0c4de','Upcoming'],['var(--err)','Blocked'],['var(--gold)','Today']].forEach(([cl,lb])=>{
+    leg.innerHTML+=`<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ts)"><span style="width:${lb==='Today'?'2px':'12px'};height:12px;border-radius:${lb==='Today'?'1px':'3px'};background:${cl};display:inline-block;${lb==='Upcoming'?'opacity:.7':''}"></span>${lb}</div>`
+  });
+  c.appendChild(leg)
+}
+function tgPanel(i,wrap){
+  const p=wrap.querySelector('.gpanel'),was=p.classList.contains('open');
+  document.querySelectorAll('.gpanel.open').forEach(x=>x.classList.remove('open'));
+  if(!was)p.classList.add('open')
+}
+function clsPanel(i){const p=document.getElementById('gp'+i);if(p)p.classList.remove('open')}
+function reopen(i){setTimeout(()=>{const ws=[...document.querySelectorAll('#gantt>div')];if(ws[i]){const p=ws[i].querySelector('.gpanel');if(p)p.classList.add('open')}},10)}
+function gdt(i,f,v){gp[i][f]=v;save();renderGantt();reopen(i);toast('Timeline updated')}
+function gst(i,v){gp[i].status=v;save();renderGantt();reopen(i);toast('Phase updated')}
+
+document.getElementById('fdate').textContent=T.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+setInterval(()=>{try{const d=JSON.parse(localStorage.getItem(K));setBadge(d.at)}catch(e){}},60000);
+
+init();renderTasks();renderMs();renderGantt();
+</script>
+</body>
+</html>
