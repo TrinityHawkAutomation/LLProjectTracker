@@ -171,22 +171,19 @@ body.adm .ahint{display:none}
 .av.cl{background:var(--accent)}
 .cn{font-size:14px;font-weight:600}
 .cr{font-size:12px;color:var(--tm)}
-.mslist{list-style:none}
-.msi{padding:8px 0;border-bottom:1px solid var(--border)}
-.msi:last-child{border-bottom:none}
-.ms-top{display:flex;align-items:center;gap:8px}
-.msdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.msdot.done{background:var(--navy)}
-.msdot.active{background:var(--accent)}
-.msdot.upcoming{background:var(--border);border:1.5px solid var(--tm)}
-.msname{font-size:13px;font-weight:500;flex:1;min-width:0}
-.msname-input{font-family:var(--f);font-size:13px;font-weight:500;border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--tp);background:#fff;outline:none;flex:1;min-width:0}
-.msname-input:focus{border-color:var(--navy-light)}
-.mssel{font-family:var(--f);font-size:11px;border:1px solid var(--border);border-radius:5px;padding:2px 4px;background:#fff;color:var(--ts);cursor:pointer;outline:none}
-.ms-bot{display:flex;align-items:center;gap:6px;margin-top:5px;margin-left:18px}
-.msdl{font-size:11px;color:var(--tm)}
-.msdi{font-family:var(--f);font-size:11px;border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--ts);background:#fff;outline:none}
-.msdi:focus{border-color:var(--navy-light)}
+.gpanel input[type=text]{font-family:var(--f);font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;background:#fff;color:var(--tp);outline:none}
+.gpanel input[type=text]:focus{border-color:var(--navy-light)}
+.gp-reorder{background:none;border:1px solid var(--border);border-radius:4px;font-size:12px;cursor:pointer;padding:2px 7px;color:var(--tm);font-family:var(--f);line-height:1.2}
+.gp-reorder:hover{color:var(--tp);border-color:var(--tp)}
+.gp-reorder:disabled{opacity:.3;cursor:default}
+.gp-del{background:none;border:1px solid var(--border);border-radius:4px;font-size:12px;cursor:pointer;padding:2px 7px;color:var(--err);font-family:var(--f);line-height:1.2}
+.gp-del:hover{background:var(--err-pale);border-color:var(--err)}
+.gadd-sec{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:none;gap:8px;flex-wrap:wrap;align-items:center}
+body.adm .gadd-sec{display:flex}
+.gadd-sec input,.gadd-sec select{font-family:var(--f);font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;background:#fff;color:var(--tp);outline:none}
+.gadd-sec input:focus,.gadd-sec select:focus{border-color:var(--navy-light)}
+.gadd-sec .gni{flex:1;min-width:110px}
+.gadd-sec .gdi{width:130px}
 
 /* UTILS */
 .epill{background:var(--gold-pale);color:var(--gold);border:1px solid #e8c97a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
@@ -201,7 +198,7 @@ body.adm .ahint{display:none}
 .ftr strong{color:rgba(255,255,255,.75)}
 
 @media print{
-  .hdr,.admin-bar,.toast,.add-sec,.gpanel,.dbtn,.tedit-btn,.tpanel,.mssel,.msdi,.msname-input,.hbtn{display:none!important}
+  .hdr,.admin-bar,.toast,.add-sec,.gadd-sec,.gpanel,.dbtn,.tedit-btn,.tpanel,.hbtn{display:none!important}
   body{background:#fff}
   .body{display:block;padding:0}
   .card{box-shadow:none;border:1px solid #ccc;margin-bottom:1rem;page-break-inside:avoid}
@@ -274,7 +271,7 @@ body.adm .ahint{display:none}
     <div class="card">
       <div class="card-hdr">
         <div class="card-title"><span class="dot"></span>Project Timeline</div>
-        <span class="hint">Click any bar to edit dates &amp; status</span>
+        <span class="hint">Click any bar to edit name, dates &amp; status</span>
       </div>
       <div class="card-body" style="padding:1rem 1rem 1.25rem">
         <div id="gantt"></div>
@@ -320,16 +317,6 @@ body.adm .ahint{display:none}
         <div class="kc"><div class="av">DS</div><div><div class="cn">Dale Shephard</div><div class="cr">TrinityHawk — Fractional CRO</div></div></div>
         <div class="kc"><div class="av">KB</div><div><div class="cn">Kiera Bridgeman</div><div class="cr">TrinityHawk — Account Executive</div></div></div>
         <div class="kc"><div class="av cl">CS</div><div><div class="cn">Cien Solon (Shen)</div><div class="cr">LaunchLemonade — Founder &amp; CEO</div></div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title"><span class="dot"></span>Milestones</div>
-        <span class="epill">Editable</span>
-      </div>
-      <div class="card-body" style="padding:.75rem 1.25rem">
-        <ul class="mslist" id="mslist"></ul>
       </div>
     </div>
 
@@ -391,10 +378,10 @@ const DTX={
   notes:"🍋 LaunchLemonade platform — launchlemonade.app\n📄 CSA / Proposal — add link here\n📹 Weekly Sales Sync recordings — add link here\n💬 Weekly sync: Mondays 3:30pm GMT"
 };
 
-let tasks=[],ms=[],gp=[],adm=false;
+let tasks=[],gp=[],adm=false;
 
 function save(){
-  const d={tasks,ms,gp,nid,tx:{done:document.getElementById('done-t').value,coming:document.getElementById('coming-t').value,notes:document.getElementById('notes-t').value},at:new Date().toISOString()};
+  const d={tasks,gp,nid,tx:{done:document.getElementById('done-t').value,coming:document.getElementById('coming-t').value,notes:document.getElementById('notes-t').value},at:new Date().toISOString()};
   try{localStorage.setItem(K,JSON.stringify(d))}catch(e){}
   setBadge(d.at)
 }
@@ -411,13 +398,12 @@ function init(){
     const raw=localStorage.getItem(K);if(!raw)throw 0;
     const d=JSON.parse(raw);
     tasks=d.tasks||JSON.parse(JSON.stringify(DT));
-    ms=d.ms||JSON.parse(JSON.stringify(DM));
     gp=d.gp||JSON.parse(JSON.stringify(DG));
     nid=d.nid||300;
     if(d.tx){document.getElementById('done-t').value=d.tx.done??DTX.done;document.getElementById('coming-t').value=d.tx.coming??DTX.coming;document.getElementById('notes-t').value=d.tx.notes??DTX.notes}
     setBadge(d.at)
   }catch(e){
-    tasks=JSON.parse(JSON.stringify(DT));ms=JSON.parse(JSON.stringify(DM));gp=JSON.parse(JSON.stringify(DG));
+    tasks=JSON.parse(JSON.stringify(DT));gp=JSON.parse(JSON.stringify(DG));
     document.getElementById('done-t').value=DTX.done;document.getElementById('coming-t').value=DTX.coming;document.getElementById('notes-t').value=DTX.notes
   }
 }
@@ -437,22 +423,23 @@ function toggleAdm(){
 
 function renderTasks(){
   const ul=document.getElementById('tlist');ul.innerHTML='';
-  tasks.forEach(t=>{
+  const sorted=[...tasks].sort((a,b)=>{if(!a.due&&!b.due)return 0;if(!a.due)return 1;if(!b.due)return -1;return a.due.localeCompare(b.due)});
+  sorted.forEach(t=>{
     const d2=dc(t.due);const wrap=document.createElement('div');
     const li=document.createElement('li');
     li.className='ti'+(t.done?' done':'');
-    const msName=typeof t.msIdx==='number'&&ms[t.msIdx]?ms[t.msIdx].name:'';
+    const gpName=typeof t.gpIdx==='number'&&gp[t.gpIdx]?gp[t.gpIdx].name:'';
     li.innerHTML=`<input type="checkbox" class="tcb" ${t.done?'checked':''} onchange="tick(${t.id},this.checked)">
 <div class="tinfo"><span class="tname">${esc(t.name)}</span>
 ${t.desc?`<span class="tdesc">${esc(t.desc)}</span>`:''}
 <div class="tmeta">${t.due?`<span class="tdue ${d2}">📅 ${fd(t.due)}${d2==='overdue'?' · Overdue':d2==='soon'?' · Due soon':''}</span>`:''}
 ${t.tag?`<span class="ttag ${esc(t.tag)}">${esc(t.tag)}</span>`:''}
-${msName?`<span class="tms-badge">${esc(msName)}</span>`:''}</div></div>
+${gpName?`<span class="tms-badge">${esc(gpName)}</span>`:''}</div></div>
 <button class="tedit-btn${adm?'':' h'}" onclick="tgTaskEdit(${t.id})" title="Edit">✎</button>
 <button class="dbtn${adm?'':' h'}" onclick="delT(${t.id})" title="Remove">&#10005;</button>`;
     wrap.appendChild(li);
     const pan=document.createElement('div');pan.className='tpanel';pan.id='tp'+t.id;
-    const msOpts=ms.map((m2,mi)=>`<option value="${mi}" ${t.msIdx===mi?'selected':''}>${esc(m2.name)}</option>`).join('');
+    const gpOpts=gp.map((g,gi)=>`<option value="${gi}" ${t.gpIdx===gi?'selected':''}>${esc(g.name)}</option>`).join('');
     pan.innerHTML=`<div class="tp-row"><div><label>Name</label><input type="text" value="${esc(t.name)}" onchange="edT(${t.id},'name',this.value)"></div></div>
 <div class="tp-row"><div><label>Due date</label><input type="date" value="${t.due||''}" onchange="edT(${t.id},'due',this.value)"></div>
 <div><label>Tag</label><select onchange="edT(${t.id},'tag',this.value)">
@@ -464,8 +451,8 @@ ${msName?`<span class="tms-badge">${esc(msName)}</span>`:''}</div></div>
 <option value="Reporting" ${t.tag==='Reporting'?'selected':''}>Reporting</option>
 <option value="Other" ${t.tag==='Other'?'selected':''}>Other</option>
 </select></div>
-<div><label>Milestone</label><select onchange="edT(${t.id},'msIdx',this.value)">
-<option value="" ${typeof t.msIdx!=='number'?'selected':''}>None</option>${msOpts}
+<div><label>Milestone</label><select onchange="edT(${t.id},'gpIdx',this.value)">
+<option value="" ${typeof t.gpIdx!=='number'?'selected':''}>None</option>${gpOpts}
 </select></div></div>
 <div><label>Description</label><textarea onchange="edT(${t.id},'desc',this.value)">${esc(t.desc||'')}</textarea></div>
 <button class="tp-close" onclick="clsTaskEdit(${t.id})">&#10005; Close</button>`;
@@ -496,7 +483,7 @@ function edT(id,field,val){
   if(!adm)return;
   const t=tasks.find(x=>x.id===id);if(!t)return;
   if(field==='name'){val=val.trim();if(!val){toast('Name cannot be empty');return}}
-  if(field==='msIdx'){t.msIdx=val===''?undefined:parseInt(val)}
+  if(field==='gpIdx'){t.gpIdx=val===''?undefined:parseInt(val)}
   else{t[field]=val}
   save();renderTasks();
   const p=document.getElementById('tp'+id);if(p)p.classList.add('open');
@@ -509,24 +496,6 @@ function stats(){
   document.getElementById('pbar').style.width=pct+'%';document.getElementById('ptxt').textContent=dn+' of '+tot+' complete';
   document.getElementById('ppct').textContent=pct+'%';document.getElementById('pct-chip').textContent=pct+'% complete'
 }
-
-function renderMs(){
-  const ul=document.getElementById('mslist');ul.innerHTML='';
-  ms.forEach((m2,i)=>{
-    const li=document.createElement('li');li.className='msi';
-    li.innerHTML=`<div class="ms-top"><div class="msdot ${m2.status}"></div><input type="text" class="msname-input" value="${esc(m2.name)}" onchange="msnm(${i},this.value)" onkeydown="if(event.key==='Enter')this.blur()">
-<select class="mssel" onchange="msst(${i},this.value)">
-<option value="done" ${m2.status==='done'?'selected':''}>Done</option>
-<option value="active" ${m2.status==='active'?'selected':''}>Active</option>
-<option value="upcoming" ${m2.status==='upcoming'?'selected':''}>Upcoming</option>
-</select></div>
-<div class="ms-bot"><span class="msdl">Date:</span><input type="date" class="msdi" value="${m2.date}" onchange="msdt(${i},this.value)"></div>`;
-    ul.appendChild(li)
-  })
-}
-function msdt(i,v){ms[i].date=v;save();toast('Milestone date updated')}
-function msst(i,v){ms[i].status=v;renderMs();save();toast('Milestone updated')}
-function msnm(i,v){v=v.trim();if(!v){toast('Name cannot be empty');renderMs();return}ms[i].name=v;save();toast('Milestone name updated')}
 
 function pd(s){return new Date(s+'T00:00:00')}
 function renderGantt(){
@@ -564,14 +533,19 @@ function renderGantt(){
     bc.appendChild(bar);row.appendChild(lbl);row.appendChild(bc);
 
     const pan=document.createElement('div');pan.className='gpanel';pan.id='gp'+i;
-    pan.innerHTML=`<label>Start</label><input type="date" value="${ph.start}" onchange="gdt(${i},'start',this.value)">
+    pan.innerHTML=`<label>Name</label><input type="text" value="${esc(ph.name)}" onchange="gnm(${i},this.value)" style="flex:1;min-width:120px">
+<label>Start</label><input type="date" value="${ph.start}" onchange="gdt(${i},'start',this.value)">
 <label>End</label><input type="date" value="${ph.end}" onchange="gdt(${i},'end',this.value)">
 <label>Status</label><select onchange="gst(${i},this.value)">
 <option value="done" ${ph.status==='done'?'selected':''}>Done</option>
 <option value="active" ${ph.status==='active'?'selected':''}>Active</option>
 <option value="upcoming" ${ph.status==='upcoming'?'selected':''}>Upcoming</option>
 <option value="blocked" ${ph.status==='blocked'?'selected':''}>Blocked</option>
-</select><button class="gcls" onclick="clsPanel(${i})">&#10005; Close</button>`;
+</select>
+<button class="gp-reorder" onclick="moveGp(${i},-1)" title="Move up" ${i===0?'disabled':''}>&#9650;</button>
+<button class="gp-reorder" onclick="moveGp(${i},1)" title="Move down" ${i===gp.length-1?'disabled':''}>&#9660;</button>
+<button class="gp-del" onclick="delGp(${i})" title="Remove phase">&#10005;</button>
+<button class="gcls" onclick="clsPanel(${i})">Close</button>`;
 
     wrap.appendChild(row);wrap.appendChild(pan);c.appendChild(wrap)
   });
@@ -580,7 +554,14 @@ function renderGantt(){
   [['var(--navy)','Done'],['var(--accent)','Active'],['#b0c4de','Upcoming'],['var(--err)','Blocked'],['var(--gold)','Today']].forEach(([cl,lb])=>{
     leg.innerHTML+=`<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ts)"><span style="width:${lb==='Today'?'2px':'12px'};height:12px;border-radius:${lb==='Today'?'1px':'3px'};background:${cl};display:inline-block;${lb==='Upcoming'?'opacity:.7':''}"></span>${lb}</div>`
   });
-  c.appendChild(leg)
+  c.appendChild(leg);
+
+  const addSec=document.createElement('div');addSec.className='gadd-sec';
+  addSec.innerHTML=`<input type="text" class="gni" id="gnn" placeholder="New phase name...">
+<input type="date" class="gdi" id="gns"><input type="date" class="gdi" id="gne">
+<select id="gnst"><option value="upcoming">Upcoming</option><option value="active">Active</option><option value="done">Done</option><option value="blocked">Blocked</option></select>
+<button class="btn bn" style="font-size:12px;padding:5px 12px" onclick="addGp()">+ Add</button>`;
+  c.appendChild(addSec)
 }
 function tgPanel(i,wrap){
   const p=wrap.querySelector('.gpanel'),was=p.classList.contains('open');
@@ -591,11 +572,31 @@ function clsPanel(i){const p=document.getElementById('gp'+i);if(p)p.classList.re
 function reopen(i){setTimeout(()=>{const ws=[...document.querySelectorAll('#gantt>div')];if(ws[i]){const p=ws[i].querySelector('.gpanel');if(p)p.classList.add('open')}},10)}
 function gdt(i,f,v){gp[i][f]=v;save();renderGantt();reopen(i);toast('Timeline updated')}
 function gst(i,v){gp[i].status=v;save();renderGantt();reopen(i);toast('Phase updated')}
+function gnm(i,v){v=v.trim();if(!v){toast('Name cannot be empty');renderGantt();reopen(i);return}gp[i].name=v;save();renderGantt();reopen(i);toast('Phase renamed')}
+function moveGp(i,dir){
+  const j=i+dir;if(j<0||j>=gp.length)return;
+  // Update task gpIdx references to follow the swap
+  tasks.forEach(t=>{if(t.gpIdx===i)t.gpIdx=j;else if(t.gpIdx===j)t.gpIdx=i});
+  [gp[i],gp[j]]=[gp[j],gp[i]];save();renderGantt();reopen(j);toast('Phase reordered')
+}
+function delGp(i){
+  if(gp.length<=1){toast('Cannot remove last phase');return}
+  // Clear task refs to deleted phase, adjust indices
+  tasks.forEach(t=>{if(t.gpIdx===i)t.gpIdx=undefined;else if(typeof t.gpIdx==='number'&&t.gpIdx>i)t.gpIdx--});
+  gp.splice(i,1);save();renderGantt();renderTasks();toast('Phase removed')
+}
+function addGp(){
+  const n=document.getElementById('gnn').value.trim(),s=document.getElementById('gns').value,e=document.getElementById('gne').value,st=document.getElementById('gnst').value;
+  if(!n){toast('Enter a phase name');return}if(!s||!e){toast('Set start and end dates');return}
+  if(s>e){toast('Start must be before end');return}
+  gp.push({name:n,start:s,end:e,status:st});
+  save();renderGantt();toast('Phase added')
+}
 
 document.getElementById('fdate').textContent=T.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 setInterval(()=>{try{const d=JSON.parse(localStorage.getItem(K));setBadge(d.at)}catch(e){}},60000);
 
-init();renderTasks();renderMs();renderGantt();
+init();renderTasks();renderGantt();
 </script>
 </body>
 </html>
