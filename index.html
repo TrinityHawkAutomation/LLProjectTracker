@@ -338,6 +338,8 @@ body.adm .gadd-sec{display:flex}
 <script>
 const T=new Date();T.setHours(0,0,0,0);
 const K='th_ll_v3';let nid=300;
+const SB_URL='https://jbjxyxnkljdqzcalgyjp.supabase.co';
+const SB_KEY='sb_publishable_DkuvWA1pFO5bE8vRgQKujA_zaW5sahz';
 function ds(d){return d.toISOString().split('T')[0]}
 function ad(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function fd(s){if(!s)return'';return new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})}
@@ -357,13 +359,6 @@ const DT=[
   {id:9,name:'LinkedIn content strategy handover',due:ds(ad(T,22)),tag:'Marketing',done:false},
   {id:10,name:'Monthly performance review & pipeline report',due:ds(ad(T,30)),tag:'Reporting',done:false}
 ];
-const DM=[
-  {name:'Discovery & ICP definition',date:ds(ad(T,-20)),status:'done'},
-  {name:'Outbound campaigns live',date:ds(ad(T,-10)),status:'done'},
-  {name:'Messaging & packaging complete',date:ds(ad(T,14)),status:'active'},
-  {name:'First qualified pipeline bookings',date:ds(ad(T,25)),status:'upcoming'},
-  {name:'Monthly review & plan',date:ds(ad(T,32)),status:'upcoming'}
-];
 const DG=[
   {name:'Discovery & ICP',start:ds(ad(T,-30)),end:ds(ad(T,-16)),status:'done'},
   {name:'Outbound Build',start:ds(ad(T,-18)),end:ds(ad(T,-6)),status:'done'},
@@ -380,11 +375,32 @@ const DTX={
 
 let tasks=[],gp=[],adm=false;
 
-function save(){
-  const d={tasks,gp,nid,tx:{done:document.getElementById('done-t').value,coming:document.getElementById('coming-t').value,notes:document.getElementById('notes-t').value},at:new Date().toISOString()};
-  try{localStorage.setItem(K,JSON.stringify(d))}catch(e){}
-  setBadge(d.at)
+async function sbFetch(method,body){
+  const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':method==='PATCH'?'return=representation':''}};
+  if(body)opts.body=JSON.stringify(body);
+  const r=await fetch(SB_URL+'/rest/v1/project_state?id=eq.1',opts);
+  if(!r.ok)throw new Error(r.status);
+  return r.json()
 }
+
+function getState(){
+  return{tasks,gp,nid,tx:{done:document.getElementById('done-t').value,coming:document.getElementById('coming-t').value,notes:document.getElementById('notes-t').value}}
+}
+
+let saving=false,pendingSave=false;
+async function save(){
+  const st=getState();const now=new Date().toISOString();
+  // Always cache locally for fast fallback
+  try{localStorage.setItem(K,JSON.stringify({...st,at:now}))}catch(e){}
+  setBadge(now);
+  if(saving){pendingSave=true;return}
+  saving=true;
+  try{
+    await sbFetch('PATCH',{tasks:st.tasks,gp:st.gp,nid:st.nid,tx:st.tx,updated_at:now})
+  }catch(e){console.warn('Supabase save failed, data cached locally',e)}
+  finally{saving=false;if(pendingSave){pendingSave=false;save()}}
+}
+
 function setBadge(iso){
   const el=document.getElementById('save-badge');
   if(!iso){el.textContent='Not saved';return}
@@ -393,19 +409,30 @@ function setBadge(iso){
   else if(m<60)el.textContent='Saved '+m+'m ago';
   else el.textContent='Saved '+new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
 }
-function init(){
+
+function applyState(d){
+  tasks=d.tasks||JSON.parse(JSON.stringify(DT));
+  gp=d.gp||JSON.parse(JSON.stringify(DG));
+  nid=d.nid||300;
+  const tx=d.tx||{};
+  document.getElementById('done-t').value=tx.done??DTX.done;
+  document.getElementById('coming-t').value=tx.coming??DTX.coming;
+  document.getElementById('notes-t').value=tx.notes??DTX.notes
+}
+
+async function init(){
+  // Try Supabase first, fall back to localStorage, then defaults
+  try{
+    const rows=await sbFetch('GET');
+    if(rows.length&&rows[0].tasks){applyState(rows[0]);setBadge(rows[0].updated_at);return}
+  }catch(e){console.warn('Supabase load failed, trying localStorage',e)}
   try{
     const raw=localStorage.getItem(K);if(!raw)throw 0;
-    const d=JSON.parse(raw);
-    tasks=d.tasks||JSON.parse(JSON.stringify(DT));
-    gp=d.gp||JSON.parse(JSON.stringify(DG));
-    nid=d.nid||300;
-    if(d.tx){document.getElementById('done-t').value=d.tx.done??DTX.done;document.getElementById('coming-t').value=d.tx.coming??DTX.coming;document.getElementById('notes-t').value=d.tx.notes??DTX.notes}
-    setBadge(d.at)
-  }catch(e){
-    tasks=JSON.parse(JSON.stringify(DT));gp=JSON.parse(JSON.stringify(DG));
-    document.getElementById('done-t').value=DTX.done;document.getElementById('coming-t').value=DTX.coming;document.getElementById('notes-t').value=DTX.notes
-  }
+    const d=JSON.parse(raw);applyState(d);setBadge(d.at);return
+  }catch(e){}
+  // Defaults
+  applyState({});
+  document.getElementById('done-t').value=DTX.done;document.getElementById('coming-t').value=DTX.coming;document.getElementById('notes-t').value=DTX.notes
 }
 
 const autoS=dbnc(save,700);
@@ -594,9 +621,16 @@ function addGp(){
 }
 
 document.getElementById('fdate').textContent=T.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-setInterval(()=>{try{const d=JSON.parse(localStorage.getItem(K));setBadge(d.at)}catch(e){}},60000);
 
-init();renderTasks();renderGantt();
+// Poll Supabase every 30s so other viewers see updates
+setInterval(async()=>{
+  try{
+    const rows=await sbFetch('GET');
+    if(rows.length&&rows[0].updated_at){setBadge(rows[0].updated_at)}
+  }catch(e){}
+},30000);
+
+(async()=>{await init();renderTasks();renderGantt()})();
 </script>
 </body>
 </html>
